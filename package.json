@@ -1,0 +1,47 @@
+{
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "build": "remix build",
+    "dev": "remix dev",
+    "start": "remix-serve build",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.0",
+    "@emotion/server": "^11.11.0",
+    "@mantine/core": "^6.0.13",
+    "@mantine/dates": "^6.0.13",
+    "@mantine/dropzone": "^6.0.13",
+    "@mantine/form": "^6.0.13",
+    "@mantine/hooks": "^6.0.13",
+    "@mantine/modals": "^6.0.13",
+    "@mantine/notifications": "^6.0.13",
+    "@mantine/nprogress": "^6.0.13",
+    "@mantine/prism": "^6.0.13",
+    "@mantine/remix": "^6.0.13",
+    "@mantine/spotlight": "^6.0.13",
+    "@remix-run/css-bundle": "^1.16.1",
+    "@remix-run/node": "^1.16.1",
+    "@remix-run/react": "^1.16.1",
+    "@remix-run/serve": "^1.16.1",
+    "@tabler/icons-react": "^2.21.0",
+    "dayjs": "^1.11.7",
+    "firebase": "^9.22.1",
+    "firebase-admin": "^11.9.0",
+    "isbot": "^3.6.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^1.16.1",
+    "@remix-run/eslint-config": "^1.16.1",
+    "@types/react": "^18.0.35",
+    "@types/react-dom": "^18.0.11",
+    "eslint": "^8.38.0",
+    "typescript": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
