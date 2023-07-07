@@ -9,7 +9,7 @@ export async function createUser({ request, fields }: {request: Request, fields:
   const docRef = db.collection("users").doc(uid);
   await docRef.set({ email, displayName });
 
-  return getUser({ request });
+  return request;
 }
 
 export async function updateUser({ request, fields }: {request: Request, fields: {displayName?: string}}) {
@@ -23,7 +23,7 @@ export async function updateUser({ request, fields }: {request: Request, fields:
   const docRef = db.collection("users").doc(sessionUser.uid);
   await docRef.set({ displayName });
 
-  return getUser({ request });
+  return request
 }
 
 export async function getUsers(request: Request) {
@@ -42,7 +42,7 @@ export async function getUsers(request: Request) {
   return data;
 }
 
-export async function getUser(request: Request) {
+export async function getMyself(request: Request) {
   const sessionUser = await getUserSession(request);
   if (!sessionUser) {
     return redirect("/login");
@@ -52,6 +52,22 @@ export async function getUser(request: Request) {
 
   if (!docSnapshot.exists) {
     throw Error("No such document exists");
+  } else {
+    const User = docSnapshot.data();
+    return User;
+  }
+}
+
+export async function getUserByUid(request: Request, uid: string) {
+  const sessionUser = await getUserSession(request);
+  if (!sessionUser) {
+    return redirect("/login");
+  }
+
+  const docSnapshot = await db.collection("users").doc(uid).get();
+
+  if (!docSnapshot.exists) {
+    return {displayName: 'anonymous'}
   } else {
     const User = docSnapshot.data();
     return User;

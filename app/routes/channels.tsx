@@ -4,7 +4,7 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 
 import { getChannels } from "~/models/channel.server";
 import { getUserSession } from "~/utils/session.server";
-import { getUser } from "~/models/user.server";
+import { getMyself } from "~/models/user.server";
 
 import { Flex, Button, ScrollArea, Navbar } from '@mantine/core'
 
@@ -13,7 +13,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   if (!sessionuser) {
     return redirect('/login');
   }
-  return json({ channels: await getChannels(request), user: await getUser(request)});
+  return json({ channels: await getChannels(request), user: await getMyself(request)});
 };
 
 export default function ChannelsRoute() {

@@ -1,10 +1,11 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useActionData, useParams, isRouteErrorResponse, useRouteError } from "@remix-run/react";
+import { useEffect, useRef } from 'react'
 
 import { getChannel, deleteChannel } from "~/models/channel.server";
 import { getMessages, createMessage } from "~/models/message.server"
-import { getUser } from "~/models/user.server"
+import { getMyself, getUserByUid } from "~/models/user.server"
 import { requireUserId } from "~/utils/session.server";
 
 import { Flex, Title, Box, Container, Group, ActionIcon, Notification, ScrollArea, Affix, rem, TextInput, Button, Text, Divider } from '@mantine/core';
@@ -17,11 +18,26 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       status: 404,
     });
   }
-  const userId = await requireUserId(request)
+
+  let [userId, user, messages] = await Promise.all([
+    requireUserId(request),
+    getMyself(request),
+    getMessages({ request, channel: params.slug }),
+  ]);
+
   const isChannelOwner = channel.owner == userId
-  const user = await getUser(request)
-  const messages = await getMessages({ request, channel: params.slug })
-  return json({ channel, isChannelOwner, messages, user })
+
+  const messagesWithName = await Promise.all(messages.map(async (m) => {
+    if (!m.userId) {
+      m.displayName = 'anonymous'
+    } else {
+      let u = await getUserByUid(request, m.userId)
+      m.displayName = u.displayName
+    }
+    return m
+  }))
+
+  return json({ channel, isChannelOwner, messages: messagesWithName, user })
 };
 
 export const action = async ({
@@ -61,7 +77,14 @@ export const action = async ({
 
 export default function ChannelRoute() {
   const actionData = useActionData<typeof action>();
-  const { channel, isChannelOwner, messages, user } = useLoaderData<typeof loader>();
+  const { channel, isChannelOwner, messages, user} = useLoaderData<typeof loader>();
+  const viewport = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (viewport.current) {
+      viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
+    }
+  }, [viewport])
 
   return (
     <Box px="0" sx={{width: 'calc(100% - 300px)'}}>
@@ -79,11 +102,11 @@ export default function ChannelRoute() {
         </form>
       )}
       <Divider size="sm" />
-      <ScrollArea p={"xs"}>
-        {messages && messages.map(({ id, text, createdAt }) => (
+      <ScrollArea p={"xs"} sx={{height: 'calc(100% - 100px)'}} viewportRef={viewport}>
+        {messages && messages.map(({ id, text, createdAt, displayName }) => (
           <Flex key={id} direction="column" mb="xs">
             <Text fz="sm" c="dimmed">
-              <Text span pr="sm">{user.displayName}</Text>
+              <Text span pr="sm">{displayName}</Text>
               {new Date(createdAt._seconds * 1000).toLocaleDateString("en-US", {weekday: "short", month: "long", day: "numeric",})}, {new Date(createdAt._seconds * 1000).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</Text>
             <Text sx={{ 'overflow-wrap': 'break-word' }}>{text}</Text>
           </Flex>
@@ -99,12 +122,12 @@ export default function ChannelRoute() {
               w={'100%'}
               rightSection={
                 <ActionIcon
-                color="blue"
-                name="intent"
-                type="submit"
-                value="post"
-                variant="filled"
-              >
+                  color="blue"
+                  name="intent"
+                  type="submit"
+                  value="post"
+                  variant="filled"
+                >
                 <IconBrandTelegram size="1rem" />
               </ActionIcon>
               }

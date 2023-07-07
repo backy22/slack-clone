@@ -9,7 +9,7 @@ export async function getMessages({ request, channel }: {request: Request, chann
     return redirect("/login");
   }
 
-  const querySnapshot = await db.collection("messages").where("channel", "==", channel).orderBy("createdAt").get()
+  const querySnapshot = await db.collection("messages").where("channel", "==", channel).orderBy("createdAt").limit(25).get()
 
   const data: any[] = [];
   querySnapshot.forEach((doc) => {

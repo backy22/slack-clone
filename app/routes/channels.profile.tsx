@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { updateUser, getUser } from "~/models/user.server";
+import { updateUser, getMyself } from "~/models/user.server";
 import { useLoaderData, Link, useActionData, isRouteErrorResponse, useRouteError } from "@remix-run/react";
 
 import { badRequest } from "~/utils/request.server";
@@ -15,7 +15,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     throw new Response("Unauthorized", { status: 401 });
   }
 
-  return json({user: await getUser(request)});
+  return json({user: await getMyself(request)});
 };
 
 function validateDisplayName(displayName: string) {
